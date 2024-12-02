@@ -16,28 +16,35 @@ public class Menu {
             mostrarMenu();
             opcion = entrada.nextInt();
             navegarAOpcion(opcion);
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     private void mostrarMenu() {
-        System.out.println("=== CUATRO EN RAYA ===");
+        System.out.println("\033[31mXXXX\033[97m - CUATRO EN RAYA - \033[33mOOOO\033[97m");
         System.out.println("1. Jugar contra humano");
         System.out.println("2. Jugar contra IA - NO FUNCIONAL");
         System.out.println("3. Configuración - NO FUNCIONAL");
-        System.out.println("4. Créditos");
-        System.out.println("5. Salir");
+        System.out.println("4. Instrucciones del juego");
+        System.out.println("5. Créditos");
+        System.out.println("6. Salir");
     }
 
     private void navegarAOpcion(int opcion) {
         switch (opcion) {
             case 1:
                 jugar();
+                break;
             case 2:
             case 3:
                 System.out.println("Función en construcción...");
+                break;
             case 4:
-                mostrarCreditos();
+                instrucciones();
+                break;
             case 5:
+                mostrarCreditos();
+                break;
+            case 6:
                 System.out.println("¡Gracias por jugar!");
         }
     }
@@ -60,16 +67,16 @@ public class Menu {
 
                 // Comprobar si alguien gana o si es un empate
                 if (logicaJuego.verificarGanador()) {
-                    System.out.println("¡El jugador " + logicaJuego.obtenerJugadorActual() + " gana! ¡¡Enhorabuena!!");
+                    System.out.println("\033[32m¡El jugador " + logicaJuego.obtenerJugadorActual() + " gana! ¡¡Enhorabuena!!\033[97m");
                     juegoTerminado = true;
                 } else if (logicaJuego.tableroLleno()) {
-                    System.out.println("¡Es un empate!");
+                    System.out.println("\033[33m¡Es un empate!");
                     juegoTerminado = true;
                 } else {
                     logicaJuego.cambiarJugador();
                 }
             } else {
-                System.out.println("Movimiento no válido, intenta de nuevo.");
+                System.out.println("\033[31mMovimiento no válido, intenta de nuevo.\033[97m");
             }
         }
         logicaJuego.reiniciarJuego();
@@ -88,7 +95,19 @@ public class Menu {
 
 
     private void mostrarCreditos() {
-        System.out.println("Cuatro en raya desarrollado por Jesús Melara Martín.");
+        System.out.println("\033[96mCuatro en raya desarrollado por Jesús Melara Martín.\033[97m\n");
+    }
+
+    private void instrucciones() {
+        System.out.println("\033[34m                                                                              *INSTRUCCIONES*                                                   ");
+        System.out.println("                                                                            ___________________                                                ");
+        System.out.println("\033[90m           [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]");
+        System.out.println("\033[90m           []\033[97m               El objetivo de Conecta 4 es alinear cuatro fichas sobre un tablero formado por seis filas y siete columnas. \033[90m                                 []\n" +
+                "\033[90m           []\033[97m                            Cada jugador dispone de 21 fichas de un color (por lo general,\033[31m rojas\033[97m o \033[33mamarillas\033[97m).                                              \033[90m[]\n" +
+                "\033[90m           []\033[97m                     Por turnos, los jugadores deben introducir una ficha en la columna que prefieran (siempre que no esté completa)                        \033[90m[]\n" +
+                "\033[90m           []\033[97m      y ésta caerá a la posición más baja. Gana la partida el primero que consiga alinear cuatro fichas consecutivas de un mismo color en cualquier,        \033[90m[]\n" +
+                "\033[90m           []\033[97m               dirección. Si todas las columnas están llenas y nadie ha alineado cuatro fichas, la partida queda en empate.                                 \033[90m[]");
+        System.out.println("\033[90m           [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]\033[97m\n");
     }
 
 }
