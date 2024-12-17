@@ -42,8 +42,9 @@ public class Tablero {
 
     /**
      * Recorre todas las posiciones del tablero
-     * @param simboloJugador
-     * @return
+     * @param simboloJugador carácter que simboliza el jugador
+     * @return true si el jugador tiene una secuencia de 4 fichas consecutivas;
+     *         false en caso contrario.
      */
     public boolean verificarGanador(char simboloJugador) {
         for (int i = 0; i < filas; i++) {
@@ -60,15 +61,15 @@ public class Tablero {
     }
 
     /**
-     * Evalúa si, desde una posición (fila, columna),
+     * Evalúa si desde una posición (fila, columna),
      * es posible formar una secuencia de 4 fichas consecutivas
      * en una dirección específica (dFila, dColumna)
-     * @param fila
-     * @param columna
-     * @param simboloJugador
-     * @param dFila
-     * @param dColumna
-     * @return
+     * @param fila posición inicial en el eje vertical (número de fila en el tablero).
+     * @param columna posición inicial en el eje horizontal (número de columna en el tablero).
+     * @param simboloJugador carácter que representa la ficha del jugador que se está verificando.
+     * @param dFila incremento de la fila en cada paso en la dirección especificada.
+     * @param dColumna incremento de la columna en cada paso en la dirección especificada.
+     * @return devuelve true si se encuentran 4 fichas consecutivas
      */
     private boolean verificarDireccion(int fila, int columna, char simboloJugador, int dFila, int dColumna) {
         int contador = 0; // Contador de símbolos consecutivos
