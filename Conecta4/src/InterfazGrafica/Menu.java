@@ -2,6 +2,7 @@ package InterfazGrafica;
 
 import java.util.Scanner;
 
+import Logica.IA;
 import Logica.LogicaJuego;
 
 
@@ -29,7 +30,7 @@ public class Menu {
     private void mostrarMenu() {
         System.out.println("\033[31mXXXX\033[97m - CUATRO EN RAYA - \033[33mOOOO\033[97m");
         System.out.println("1. Jugar contra humano");
-        System.out.println("2. Jugar contra IA - NO FUNCIONAL");
+        System.out.println("2. Jugar contra IA");
         System.out.println("3. Configuración");
         System.out.println("4. Instrucciones del juego");
         System.out.println("5. Créditos");
@@ -38,15 +39,15 @@ public class Menu {
 
     /**
      * Método donde se pasa la opción del menú que hemos seleccionado y hace la acción solicitada
-     * @param opcion
+     * @param opcion Número que representa la opción seleccionada en el menú principal
      */
     private void selectorOpcion(int opcion) {
         switch (opcion) {
             case 1:
-                jugar();
+                jugar(false);
                 break;
             case 2:
-                System.out.println("Función en construcción...");
+                jugar(true);
                 break;
             case 3:
                 configuracion();
@@ -65,73 +66,75 @@ public class Menu {
 
 
     /**
-     * Método que se encarga de la partida que se esté jugando
+     * Método que se encarga del mecanismo de las partidas, elegir posición de la ficha, comprobar si hay fichas consecutivas,
+     * elegir el ganador
+     * @param contraIA Booleano que establece si la partida es contra la IA o contra un jugador en local
      */
-    private void jugar() {
-        // Inicialización de los contadores de partidas ganadas por los dos jugadores
+    private void jugar(boolean contraIA) {
         int partidasGanadasJugador1 = 0;
         int partidasGanadasJugador2 = 0;
+        IA ia = new IA();
 
-        // Determinar quién inicia.
-        if (ordenSalida.equals("Aleatorio")) { //hola
+        if (ordenSalida.equals("Aleatorio")) {
             logicaJuego.reiniciarJuego();
-            if (Math.random() < 0.5) { // 50% de probabilidad de que inicie el Jugador 2.
+            if (Math.random() < 0.5) {
                 logicaJuego.cambiarJugador(); // Cambia al Jugador 2.
             }
-        } else if (ordenSalida.equals("Sale Perdedor")) { // El perdedor de la última partida inicia la nueva
+        } else if (ordenSalida.equals("Sale Perdedor")) {
             if (partidasGanadasJugador1 > partidasGanadasJugador2) {
-                logicaJuego.cambiarJugador(); // Cambia al Jugador 2 si el Jugador 1 ganó más partidas
+                logicaJuego.cambiarJugador();
             }
-        } else if (ordenSalida.equals("Sale Ganador")) { // El ganador de la última partida inicia
+        } else if (ordenSalida.equals("Sale Ganador")) {
             if (partidasGanadasJugador2 > partidasGanadasJugador1) {
-                logicaJuego.cambiarJugador(); // Cambia al Jugador 2 si este ganó más partidas
+                logicaJuego.cambiarJugador();
             }
         } else {
-            // Por defecto, empieza el Jugador 1
             logicaJuego.reiniciarJuego();
         }
 
-        boolean juegoTerminado = false; // Controlador para saber si la partida ha terminado
-
+        boolean juegoTerminado = false;
 
         while (partidasGanadasJugador1 < partidasParaGanar && partidasGanadasJugador2 < partidasParaGanar) {
             while (!juegoTerminado) {
                 System.out.println("\nTurno del jugador: " + logicaJuego.obtenerJugadorActual());
                 int columna;
 
+                if (contraIA && logicaJuego.obtenerJugadorActual() == colorJugador2) {
+                    // Llama a la IA para calcular el movimiento.
+                    columna = ia.calcularMovimiento(logicaJuego.obtenerTablero(), colorJugador2);
+                    System.out.println("La IA juega en la columna: " + (columna + 1));
+                } else {
+                    System.out.print("Introduce la columna (1-7): ");
+                    columna = entrada.nextInt() - 1;
+                }
 
-                System.out.print("Introduce la columna (1-7): ");
-                columna = entrada.nextInt() - 1; // Resta 1 para convertir a índice basado en 0
-
-
-                if (logicaJuego.jugarTurno(columna)) { // Verifica si el movimiento es válido
+                if (logicaJuego.jugarTurno(columna)) {
                     dibujarTablero();
 
                     if (logicaJuego.verificarGanador()) {
-                        System.out.println("¡El jugador " + logicaJuego.obtenerJugadorActual() + " gana la partida!");
+                        System.out.println("\033[32m¡El jugador " + logicaJuego.obtenerJugadorActual() + " gana la partida!\033[97m");
                         if (logicaJuego.obtenerJugadorActual() == colorJugador1) {
-                            partidasGanadasJugador1++; // Incrementa el contador de victorias para el Jugador 1
+                            partidasGanadasJugador1++;
                         } else {
-                            partidasGanadasJugador2++; // Incrementa el contador de victorias para el Jugador 2
+                            partidasGanadasJugador2++;
                         }
                         juegoTerminado = true;
-                    } else if (logicaJuego.tableroLleno()) { // Si el tablero está lleno y sin 4 fichas consecutivas de ningún jugador
-                        System.out.println("¡Es un empate!");
+                    } else if (logicaJuego.tableroLleno()) {
+                        System.out.println("\033[93m¡Es un empate!\033[97m");
                         juegoTerminado = true;
                     } else {
-                        logicaJuego.cambiarJugador(); // Si no hay ni ganador, ni empate, cambia el turno al otro jugador
+                        logicaJuego.cambiarJugador();
                     }
                 } else {
-                    System.out.println("Movimiento no válido, intenta de nuevo.");
+                    System.out.println("\033[91mMovimiento no válido, intenta de nuevo.\033[97m");
                 }
             }
 
-            // Marcador después de cada partida
-            System.out.println("Marcador:");
-            System.out.println("Jugador 1 (" + colorJugador1 + "): " + partidasGanadasJugador1);
-            System.out.println("Jugador 2 (" + colorJugador2 + "): " + partidasGanadasJugador2);
+            System.out.println("\n\033[96mMarcador:\033[97m");
+            System.out.println("\033[31mJugador 1 (" + colorJugador1 + "): " + partidasGanadasJugador1 + "\033[97m");
+            System.out.println("\033[33mJugador 2 (" + colorJugador2 + "): " + partidasGanadasJugador2 + "\033[97m");
 
-            // // Si aún ningún jugador ha alcanzado las victorias necesarias para ganar el juego, reinicia el juego para otra partida
+            // Si aún ningún jugador ha alcanzado las victorias necesarias para ganar el juego, reinicia el juego para otra partida
             if (partidasGanadasJugador1 < partidasParaGanar && partidasGanadasJugador2 < partidasParaGanar) {
                 logicaJuego.reiniciarJuego();
                 juegoTerminado = false;
@@ -140,7 +143,7 @@ public class Menu {
 
         // Se declara al ganador del juego una vez se alcance el número de victorias necesarias para ganar el juego
         if (partidasGanadasJugador1 > partidasGanadasJugador2) {
-            System.out.println("¡Jugador 1 gana el juego!\n");
+            System.out.println("\033[92m¡Jugador 1 gana el juego!\033[97m\n");
         } else {
             System.out.println("¡Jugador 2 gana el juego!\n");
         }
@@ -191,7 +194,7 @@ public class Menu {
 
     /**
      * Manejo de distintas opciones en cada tipo de configuración
-     * @param opcion
+     * @param opcion Número que representa la opción seleccionada en el menú de configuración
      */
     private void procesarOpcionConfiguracion(int opcion) {
         switch (opcion) {
@@ -208,7 +211,7 @@ public class Menu {
                 System.out.println("Volviendo al menú principal...");
                 break;
             default:
-                System.out.println("Opción no válida.");
+                System.out.println("\033[91mOpción no válida.\033[97m");
                 break;
         }
     }
@@ -252,7 +255,7 @@ public class Menu {
                 ordenSalida = "Jugador 1";
                 break;
             default:
-                System.out.println("Opción no válida. Manteniendo configuración anterior.");
+                System.out.println("\033[91mOpción no válida.\033[97m Manteniendo configuración anterior.");
                 break;
         }
 
