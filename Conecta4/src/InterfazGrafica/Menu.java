@@ -145,7 +145,7 @@ public class Menu {
         if (partidasGanadasJugador1 > partidasGanadasJugador2) {
             System.out.println("\033[92m¡Jugador 1 gana el juego!\033[97m\n");
         } else {
-            System.out.println("¡Jugador 2 gana el juego!\n");
+            System.out.println("\033[92m¡Jugador 2 gana el juego!\033[97m\n");
         }
 
         logicaJuego.reiniciarJuego();

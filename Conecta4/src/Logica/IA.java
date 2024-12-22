@@ -1,5 +1,7 @@
 package Logica;
 
+import java.util.Random;
+
 public class IA {
 
     /**
@@ -9,12 +11,10 @@ public class IA {
      * @return Columna en la que la IA colocará su ficha
      */
     public int calcularMovimiento(char[][] tablero, char simboloIA) {
-        for (int col = 0; col < tablero[0].length; col++) {
-            if (tablero[0][col] == ' ') {
-                return col;
-            }
-        }
+        Random random = new Random();
+        return random.nextInt(tablero[0].length);
         // Si no hay movimiento válido, retorna -1.
-        return -1;
+
     }
+
 }
