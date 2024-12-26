@@ -8,24 +8,24 @@ import Logica.LogicaJuego;
 
 public class Menu {
 
-    private final Scanner entrada = new Scanner(System.in);
+    private final Scanner teclado = new Scanner(System.in);
     private final LogicaJuego logicaJuego = new LogicaJuego();
 
 
     /**
-     * Método de inicio del programa
+     * Método que inicializa el programa.
      */
     public void iniciar() {
         int opcion;
         do {
             mostrarMenu();
-            opcion = entrada.nextInt();
+            opcion = teclado.nextInt();
             selectorOpcion(opcion);
         } while (opcion != 6);
     }
 
     /**
-     * Muestra el menú del juego
+     * Muestra el menú del juego.
      */
     private void mostrarMenu() {
         System.out.println("\033[31mXXXX\033[97m - CUATRO EN RAYA - \033[33mOOOO\033[97m");
@@ -38,8 +38,8 @@ public class Menu {
     }
 
     /**
-     * Método donde se pasa la opción del menú que hemos seleccionado y hace la acción solicitada
-     * @param opcion Número que representa la opción seleccionada en el menú principal
+     * Método donde se pasa la opción del menú que hemos seleccionado y hace la acción solicitada.
+     * @param opcion Número que representa la opción seleccionada en el menú principal.
      */
     private void selectorOpcion(int opcion) {
         switch (opcion) {
@@ -67,13 +67,19 @@ public class Menu {
 
     /**
      * Método que se encarga del mecanismo de las partidas, elegir posición de la ficha, comprobar si hay fichas consecutivas,
-     * elegir el ganador
-     * @param contraIA Booleano que establece si la partida es contra la IA o contra un jugador en local
+     * elegir el ganador.
+     * @param contraIA Booleano que establece si la partida es contra la IA o contra un jugador en local.
      */
     private void jugar(boolean contraIA) {
         int partidasGanadasJugador1 = 0;
         int partidasGanadasJugador2 = 0;
         IA ia = new IA();
+
+        if (contraIA) {
+            System.out.println("\033[96mHa seleccionado Jugar contra la IA.\033[97m");
+        } else {
+            System.out.println("\033[96mHa seleccionado Jugar contra humano.\033[97m");
+        }
 
         if (ordenSalida.equals("Aleatorio")) {
             logicaJuego.reiniciarJuego();
@@ -97,15 +103,28 @@ public class Menu {
         while (partidasGanadasJugador1 < partidasParaGanar && partidasGanadasJugador2 < partidasParaGanar) {
             while (!juegoTerminado) {
                 System.out.println("\nTurno del jugador: " + logicaJuego.obtenerJugadorActual());
-                int columna;
+                int columna = -1;
+                boolean entradaValida = false;
 
-                if (contraIA && logicaJuego.obtenerJugadorActual() == colorJugador2) {
+                if (contraIA && logicaJuego.obtenerJugadorActual() == simboloJugador2) {
                     // Llama a la IA para calcular el movimiento.
-                    columna = ia.calcularMovimiento(logicaJuego.obtenerTablero(), colorJugador2);
+                    columna = ia.calcularMovimiento(logicaJuego.obtenerTablero(), simboloJugador2);
                     System.out.println("La IA juega en la columna: " + (columna + 1));
+                    entradaValida = true;
                 } else {
-                    System.out.print("Introduce la columna (1-7): ");
-                    columna = entrada.nextInt() - 1;
+                    while (!entradaValida) {
+                        System.out.print("Introduce la columna (1-7): ");
+                        try {
+                            columna = Integer.parseInt(teclado.next()) - 1;
+                            if (columna >= 0 && columna < 7) {
+                                entradaValida = true;
+                            } else {
+                                System.out.println("\033[91mEl número debe estar entre 1 y 7. Intenta de nuevo.\033[97m");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("\033[91mEntrada no válida. Por favor, introduce un número entre 1 y 7.\033[97m");
+                        }
+                    }
                 }
 
                 if (logicaJuego.jugarTurno(columna)) {
@@ -113,7 +132,7 @@ public class Menu {
 
                     if (logicaJuego.verificarGanador()) {
                         System.out.println("\033[32m¡El jugador " + logicaJuego.obtenerJugadorActual() + " gana la partida!\033[97m");
-                        if (logicaJuego.obtenerJugadorActual() == colorJugador1) {
+                        if (logicaJuego.obtenerJugadorActual() == simboloJugador1) {
                             partidasGanadasJugador1++;
                         } else {
                             partidasGanadasJugador2++;
@@ -131,8 +150,8 @@ public class Menu {
             }
 
             System.out.println("\n\033[96mMarcador:\033[97m");
-            System.out.println("\033[31mJugador 1 (" + colorJugador1 + "): " + partidasGanadasJugador1 + "\033[97m");
-            System.out.println("\033[33mJugador 2 (" + colorJugador2 + "): " + partidasGanadasJugador2 + "\033[97m");
+            System.out.println("\033[31mJugador 1 (" + simboloJugador1 + "): " + partidasGanadasJugador1 + "\033[97m");
+            System.out.println("\033[33mJugador 2 (" + simboloJugador2 + "): " + partidasGanadasJugador2 + "\033[97m");
 
             // Si aún ningún jugador ha alcanzado las victorias necesarias para ganar el juego, reinicia el juego para otra partida
             if (partidasGanadasJugador1 < partidasParaGanar && partidasGanadasJugador2 < partidasParaGanar) {
@@ -153,7 +172,7 @@ public class Menu {
 
 
     /**
-     * Pinta el tablero de juego en la consola
+     * Pinta el tablero de juego por la terminal.
      */
     private void dibujarTablero() {
         char[][] tablero = logicaJuego.obtenerTablero();
@@ -166,8 +185,8 @@ public class Menu {
         System.out.println(" 1   2   3   4   5   6   7");
     }
 
-    private char colorJugador1 = 'X'; // Valor predeterminado.
-    private char colorJugador2 = 'O'; // Valor predeterminado.
+    private char simboloJugador1 = 'X'; // Valor predeterminado.
+    private char simboloJugador2 = 'O'; // Valor predeterminado.
     private int partidasParaGanar = 1; // Por defecto, 1 partida.
     private String ordenSalida = "Jugador 1";
 
@@ -176,30 +195,30 @@ public class Menu {
 
         do {
             mostrarMenuConfiguracion();
-            opcionConfiguracion = entrada.nextInt();
+            opcionConfiguracion = teclado.nextInt();
             procesarOpcionConfiguracion(opcionConfiguracion);
         } while (opcionConfiguracion != 4); // Salir del menú de configuración.
     }
 
     /**
-     * Menú de opciones para el apartado de Configuración
+     * Menú de opciones para el apartado de Configuración.
      */
     private void mostrarMenuConfiguracion() {
-        System.out.println("=== CONFIGURACIÓN ===");
-        System.out.println("1. Cambiar color de los jugadores");
+        System.out.println("\n\033[34m     === CONFIGURACIÓN ===\033[97m");
+        System.out.println("1. Cambiar símbolo de los jugadores");
         System.out.println("2. Establecer número de partidas para ganar");
         System.out.println("3. Configurar orden de salida");
         System.out.println("4. Volver al menú principal");
     }
 
     /**
-     * Manejo de distintas opciones en cada tipo de configuración
-     * @param opcion Número que representa la opción seleccionada en el menú de configuración
+     * Manejo de distintas opciones en cada tipo de configuración.
+     * @param opcion Número que representa la opción seleccionada en el menú de configuración.
      */
     private void procesarOpcionConfiguracion(int opcion) {
         switch (opcion) {
             case 1:
-                configurarColores();
+                configurarSimbolos();
                 break;
             case 2:
                 configurarNumeroPartidas();
@@ -216,30 +235,67 @@ public class Menu {
         }
     }
 
-    private void configurarColores() {
-        System.out.print("Introduce el símbolo para el Jugador 1: ");
-        colorJugador1 = entrada.next().charAt(0);
-        System.out.print("Introduce el símbolo para el Jugador 2: ");
-        colorJugador2 = entrada.next().charAt(0);
+    /**
+     * Cambia los símbolos de los jugadores dependiendo de cuál haya introducido.
+     */
+    private void configurarSimbolos() {
+        boolean simboloValido = false;
 
-        System.out.println("Colores establecidos:");
-        System.out.println("Jugador 1: " + colorJugador1);
-        System.out.println("Jugador 2: " + colorJugador2);
+        while (!simboloValido) {
+            System.out.print("Introduce el símbolo para el Jugador 1 (X u O): ");
+            simboloJugador1 = teclado.next().toUpperCase().charAt(0);
+
+            if (simboloJugador1 == 'X' || simboloJugador1 == 'O') {
+                simboloValido = true;
+            } else {
+                System.out.println("\033[91mSímbolo no válido. Solo se permite 'X' u 'O'.\033[97m");
+            }
+        }
+
+        simboloValido = false; // Reinicia para el segundo jugador.
+        while (!simboloValido) {
+            System.out.print("Introduce el símbolo para el Jugador 2 (X u O): ");
+            simboloJugador2 = teclado.next().toUpperCase().charAt(0);
+
+            if (simboloJugador2 == 'X' || simboloJugador2 == 'O') {
+                if (simboloJugador2 != simboloJugador1) {
+                    simboloValido = true;
+                } else {
+                    System.out.println("\033[91mSímbolo no válido. El Jugador 2 no puede usar el mismo símbolo que el Jugador 1.\033[97m");
+                }
+            } else {
+                System.out.println("\033[91mSímbolo no válido. Solo se permite 'X' u 'O'.\033[97m");
+            }
+        }
+
+        // Actualizar los símbolos en la lógica del juego.
+        logicaJuego.setSimboloJugador1(simboloJugador1);
+        logicaJuego.setSimboloJugador2(simboloJugador2);
+
+        System.out.println("Símbolos establecidos:");
+        System.out.println("Jugador 1: " + simboloJugador1);
+        System.out.println("Jugador 2: " + simboloJugador2);
     }
 
+    /**
+     * Establece un número de partidas para que el jugador que llegue a él sea el ganador del juego.
+     */
     private void configurarNumeroPartidas() {
         System.out.print("Introduce el número de partidas para ganar: ");
-        partidasParaGanar = entrada.nextInt();
-        System.out.println("Número de partidas establecido: " + partidasParaGanar);
+        partidasParaGanar = teclado.nextInt();
+        System.out.println("Número de partidas establecido: \033[92m" + partidasParaGanar + "\033[97m");
     }
 
+    /**
+     * Establece el orden de salida que se hará en la siguiente partida que se juegue.
+     */
     private void configurarOrdenSalida() {
-        System.out.println("Elige el orden de salida:");
-        System.out.println("1. Aleatorio");
-        System.out.println("2. Sale siempre el ganador de la última partida");
-        System.out.println("3. Sale siempre el perdedor de la última partida");
-        System.out.println("4. Sale siempre el Jugador 1");
-        int opcion = entrada.nextInt();
+        System.out.println("\n\033[34mElige el orden de salida:\033[97m");
+        System.out.println("\033[32m1.\033[97m Aleatorio");
+        System.out.println("\033[32m2.\033[97m Sale siempre el ganador de la última partida");
+        System.out.println("\033[32m3.\033[97m Sale siempre el perdedor de la última partida");
+        System.out.println("\033[32m4.\033[97m Sale siempre el Jugador 1");
+        int opcion = teclado.nextInt();
 
         switch (opcion) {
             case 1:
@@ -264,7 +320,7 @@ public class Menu {
 
 
     /**
-     * Método que muestra las reglas e instrucciones del juego
+     * Muestra las reglas e instrucciones del juego.
      */
     private void instrucciones() {
         System.out.println("\033[34m                                                                              *INSTRUCCIONES*                                                   ");
@@ -280,10 +336,10 @@ public class Menu {
 
 
     /**
-     * Método que muestra los créditos del programa
+     * Muestra los créditos del programa.
      */
     private void creditos() {
-        System.out.println("\033[96mCuatro en raya desarrollado por Jesús Melara Martín.\033[97m\n");
+        System.out.println("\033[96mConecta 4 desarrollado por Jesús Melara Martín.\033[97m\n");
     }
 
 }

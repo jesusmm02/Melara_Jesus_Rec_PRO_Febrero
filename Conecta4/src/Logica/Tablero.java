@@ -1,14 +1,19 @@
 package Logica;
 
 public class Tablero {
-    private final int filas = 6;
-    private final int columnas = 7;
-    private char[][] tablero;
+    private final int filas = 6; // Número de filas en el tablero
+    private final int columnas = 7; // Número de columnas en el tablero.
+    private char[][] tablero; // Matriz que representa el tablero de juego.
 
+    // Constructor de la clase.
     public Tablero() {
         inicializarTablero();
     }
 
+    /**
+     * Inicializa el tablero con espacios vacíos.
+     * Crea una matriz de caracteres y asigna ' ' (espacio vacío) a cada posición.
+     */
     public void inicializarTablero() {
         tablero = new char[filas][columnas];
         for (int i = 0; i < filas; i++) {
@@ -18,26 +23,39 @@ public class Tablero {
         }
     }
 
+    /**
+     * Intenta colocar la ficha del jugador en la columna especificada.
+     * La ficha se coloca en la posición más baja disponible de la columna.
+     * @param columna Número de la columna donde el jugador quiere colocar su ficha.
+     * @param simboloJugador Carácter que representa la ficha del jugador.
+     * @return true si la ficha se colocó con éxito; false si el movimiento no es válido.
+     */
     public boolean colocarFicha(int columna, char simboloJugador) {
+        // Verifica si la columna está dentro del rango y no está llena en la parte superior.
         if (columna < 0 || columna >= columnas || tablero[0][columna] != ' ') {
             return false; // Movimiento no válido.
         }
+        // Recorre la columna desde la parte inferior hacia arriba para encontrar la primera posición disponible.
         for (int i = filas - 1; i >= 0; i--) {
             if (tablero[i][columna] == ' ') {
-                tablero[i][columna] = simboloJugador;
+                tablero[i][columna] = simboloJugador; // Coloca la ficha del jugador.
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Verifica si el tablero está lleno, es decir, si ya no quedan movimientos posibles.
+     * @return true si todas las columnas están llenas; false si hay al menos un espacio vacío.
+     */
     public boolean estaLleno() {
         for (int i = 0; i < columnas; i++) {
-            if (tablero[0][i] == ' ') {
+            if (tablero[0][i] == ' ') { // Si hay al menos un espacio vacío en la fila superior, el tablero no está lleno.
                 return false;
             }
         }
-        return true;
+        return true; // Todas las columnas están llenas.
     }
 
     /**
