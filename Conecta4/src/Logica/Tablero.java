@@ -110,6 +110,10 @@ public class Tablero {
         return contador == 4;
     }
 
+    /**
+     * Matriz que representa el tablero.
+     * @return Tablero de juego
+     */
     public char[][] obtenerTablero() {
         return tablero;
     }
