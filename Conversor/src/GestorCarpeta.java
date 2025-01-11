@@ -25,7 +25,7 @@ public class GestorCarpeta {
      * @param teclado lee entrada de ruta por teclado.
      */
     public void seleccionarCarpeta(Scanner teclado) {
-        System.out.print("Ingrese la ruta de la carpeta: ");
+        System.out.print("\033[34mIngrese la ruta de la carpeta: \033[97m");
         String rutaCarpeta = teclado.nextLine().trim();
 
         File carpeta = new File(rutaCarpeta); // Crea un objeto File con la ruta ingresada
@@ -33,10 +33,10 @@ public class GestorCarpeta {
         // Verifica si la ruta corresponde a una carpeta existente
         if (carpeta.exists() && carpeta.isDirectory()) {
             carpetaSeleccionada = rutaCarpeta; // Almacena la ruta si es válida
-            System.out.println("Carpeta seleccionada correctamente.");
+            System.out.println("\033[32mCarpeta seleccionada correctamente.\033[97m");
         } else {
             // Mensaje de error si la ruta no es válida o no es una carpeta
-            System.out.println("Ruta inválida o no es una carpeta. Inténtelo de nuevo.");
+            System.out.println("\033[91mRuta inválida o no es una carpeta. Inténtelo de nuevo.\033[97m");
         }
     }
 
@@ -53,7 +53,7 @@ public class GestorCarpeta {
                     // Por cada archivo encontrado, imprime su nombre
                     .forEach(file -> System.out.println("  - " + file.getFileName()));
         } catch (IOException e) {
-            System.out.println("Error al listar contenidos de la carpeta.");
+            System.out.println("\033[91mError al listar contenidos de la carpeta.\033[97m");
         }
     }
 }

@@ -7,6 +7,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GestorFichero {
 
@@ -40,11 +41,11 @@ public class GestorFichero {
      */
     public void leerFichero(Scanner scanner, GestorCarpeta gestorCarpeta) {
         if (gestorCarpeta.obtenerCarpetaSeleccionada() == null) {
-            System.out.println("Primero debe seleccionar una carpeta.");
+            System.out.println("\033[33mPrimero debe seleccionar una carpeta.\033[97m");
             return;
         }
 
-        System.out.print("Ingrese el nombre del fichero: ");
+        System.out.print("\033[34mIngrese el nombre del fichero:\033[97m ");
         String nombreFichero = scanner.nextLine().trim();
         File fichero = new File(gestorCarpeta.obtenerCarpetaSeleccionada(), nombreFichero);
 
@@ -53,12 +54,12 @@ public class GestorFichero {
             ficheroSeleccionado = nombreFichero;
             try {
                 datos = parsearFichero(fichero); // Procesa el fichero.
-                System.out.println("Fichero leído correctamente.");
+                System.out.println("\033[92mFichero leído correctamente.\033[97m");
             } catch (Exception e) {
-                System.out.println("Error al leer el fichero: " + e.getMessage());
+                System.out.println("\033[91mError al leer el fichero: \033[97m" + e.getMessage());
             }
         } else {
-            System.out.println("El fichero no existe o no es válido.");
+            System.out.println("\033[91mEl fichero no existe o no es válido.\033[97m");
         }
     }
 
@@ -79,7 +80,7 @@ public class GestorFichero {
             case "xml":
                 return parsearXml(fichero);
             default:
-                throw new IllegalArgumentException("Formato de fichero no soportado: " + extension);
+                throw new IllegalArgumentException("\033[91mFormato de fichero no soportado: \033[97m" + extension);
         }
     }
 
@@ -131,18 +132,22 @@ public class GestorFichero {
             }
         }
 
-        // Elimina corchetes exteriores del array JSON, si existen
+        // Convertir el contenido JSON a un mapa o lista, dependiendo de su estructura
         String contenido = contenidoJson.toString().trim();
-        if (contenido.startsWith("[") && contenido.endsWith("]")) {
-            contenido = contenido.substring(1, contenido.length() - 1); // Quita corchetes al inicio y al final
+        if (contenido.startsWith("{")) {
+            // Si es un objeto JSON, lo procesamos directamente como un único objeto
+            Map<String, String> mapaJson = parsearObjetoJson(contenido);
+            resultado.add(mapaJson);
+        } else if (contenido.startsWith("[") && contenido.endsWith("]")) {
+            // Si es un array de objetos JSON, lo procesamos como una lista
+            contenido = contenido.substring(1, contenido.length() - 1); // Quita los corchetes exteriores
+            List<String> objetosJson = separarObjetosJson(contenido);
+            for (String objeto : objetosJson) {
+                resultado.add(parsearObjetoJson(objeto));
+            }
         } else {
-            throw new IllegalArgumentException("Formato JSON inválido: no es un array.");
-        }
-
-        // Separar los objetos JSON y procesar cada uno.
-        List<String> objetosJson = separarObjetosJson(contenido);
-        for (String objeto : objetosJson) {
-            resultado.add(parsearObjetoJson(objeto));
+            // Si el contenido no es válido, lanzamos una excepción
+            throw new IllegalArgumentException("\033[91mFormato JSON inválido: no es ni un objeto ni un array de objetos.\033[97m");
         }
 
         return resultado;
@@ -188,7 +193,7 @@ public class GestorFichero {
 
         for (String par : pares) {
             int separador = par.indexOf(':'); // Encuentra el carácter ':' que separa clave y valor
-            if (separador == -1) throw new IllegalArgumentException("Formato inválido: " + par);
+            if (separador == -1) throw new IllegalArgumentException("\033[91mFormato inválido: \033[97m" + par);
 
             // Extrae la clave y el valor
             String clave = par.substring(0, separador).trim();
@@ -251,10 +256,177 @@ public class GestorFichero {
                 }
             }
         } catch (Exception e) {
-            throw new IOException("Error al parsear el archivo XML: " + e.getMessage());
+            throw new IOException("\033[91mError al parsear el archivo XML: \033[97m" + e.getMessage());
         }
         return resultado; // Lista de mapas procesados
     }
+
+    /**
+     * Convierte el contenido de los datos leídos en el formato especificado (csv, json, xml)
+     * y guarda el archivo convertido en la carpeta seleccionada.
+     *
+     * @param scanner Objeto Scanner para leer la entrada del usuario.
+     * @param gestorCarpeta Instancia de GestorCarpeta para obtener la carpeta seleccionada.
+     */
+    public void convertirFichero(Scanner scanner, GestorCarpeta gestorCarpeta) {
+        if (datos.isEmpty()) {
+            System.out.println("\033[33mPrimero debe leer un fichero.\033[97m");
+            return;
+        }
+
+        System.out.print("\033[34mSeleccione el formato de salida \033[92m(csv, json, xml)\033[97m:");
+        String formato = scanner.nextLine().trim().toLowerCase();
+
+        System.out.print("\033[34mIngrese el nombre del fichero de salida (sin extensión): \033[97m");
+        String nombreSalida = scanner.nextLine().trim();
+        File ficheroSalida = new File(gestorCarpeta.obtenerCarpetaSeleccionada(), nombreSalida + "." + formato);
+
+        try {
+            switch (formato) {
+                case "csv":
+                    escribirCsv(ficheroSalida);
+                    break;
+                case "json":
+                    escribirJson(ficheroSalida);
+                    break;
+                case "xml":
+                    escribirXml(ficheroSalida);
+                    break;
+                default:
+                    System.out.println("\033[91mFormato no soportado.\033[97m");
+                    return;
+            }
+            System.out.println("\033[33mFichero convertido y guardado en:\033[92m " + ficheroSalida.getAbsolutePath() + "\033[97m");
+        } catch (Exception e) {
+            System.out.println("\033[91mError al convertir el fichero:\033[97m " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * Escribe los datos en formato CSV en el archivo especificado.
+     *
+     * @param fichero Archivo donde se escribirá el contenido en formato CSV.
+     * @throws IOException Si ocurre un error al escribir en el archivo.
+     */
+    private void escribirCsv(File fichero) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fichero))) {
+            if (!datos.isEmpty()) {
+                String[] encabezados = datos.get(0).keySet().toArray(new String[0]);
+                bw.write(String.join(",", encabezados));
+                bw.newLine();
+
+                for (Map<String, String> fila : datos) {
+                    String linea = Arrays.stream(encabezados)
+                            .map(fila::get)
+                            .collect(Collectors.joining(","));
+                    bw.write(linea);
+                    bw.newLine();
+                }
+            }
+        }
+    }
+
+    /**
+     * Escribe los datos en formato JSON en el archivo especificado.
+     *
+     * @param fichero Archivo donde se escribirá el contenido en formato JSON.
+     * @throws IOException Si ocurre un error al escribir en el archivo.
+     */
+    private void escribirJson(File fichero) throws IOException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("[\n");
+
+        for (int i = 0; i < datos.size(); i++) {
+            Map<String, String> fila = datos.get(i);
+            jsonBuilder.append("  {\n");
+
+            int j = 0;
+            for (Map.Entry<String, String> entrada : fila.entrySet()) {
+                String clave = entrada.getKey().replace("/", " "); // Reemplaza '/' en claves con espacio
+                String valor = entrada.getValue()
+                        .replace("/", " ")        // Reemplaza '/' en valores con espacio
+                        .replace("\\", "")    // Escapa barras invertidas correctamente
+                        .replace("\"", "");   // Escapa comillas dobles correctamente
+
+                jsonBuilder.append("    \"").append(clave).append("\": \"").append(valor).append("\"");
+                if (j < fila.size() - 1) {
+                    jsonBuilder.append(",");
+                }
+                jsonBuilder.append("\n");
+                j++;
+            }
+
+            jsonBuilder.append("  }");
+            if (i < datos.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+        }
+
+        jsonBuilder.append("]");
+
+        // Escribir el JSON al archivo
+        try (FileWriter escritor = new FileWriter(fichero)) {
+            escritor.write(jsonBuilder.toString());
+        }
+    }
+
+    /**
+     * Escribe los datos en formato XML en el archivo especificado.
+     *
+     * @param fichero Archivo donde se escribirá el contenido en formato XML.
+     * @throws IOException Si ocurre un error al escribir en el archivo.
+     */
+    private void escribirXml(File fichero) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichero))) {
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<datos>\n");
+
+            for (Map<String, String> fila : datos) {
+                writer.write("  <fila>\n");
+
+                for (Map.Entry<String, String> entrada : fila.entrySet()) {
+                    String clave = entrada.getKey().trim();  // Elimina espacios en blanco en la clave
+                    String valor = entrada.getValue().trim(); // Elimina espacios en blanco en el valor
+
+                    // Escapar caracteres especiales en XML
+                    clave = escaparXml(clave);
+                    valor = escaparXml(valor);
+
+                    writer.write("    <" + clave + ">" + valor + "</" + clave + ">\n");
+                }
+
+                writer.write("  </fila>\n");
+            }
+
+            writer.write("</datos>\n");
+        }
+    }
+
+    
+    /**
+     * Escapa caracteres especiales en una cadena para que sea válida en XML.
+     *
+     * @param texto Cadena de texto a escapar.
+     * @return Cadena de texto con caracteres especiales escapados.
+     */
+    private String escaparXml(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("{", "")
+                .replace("}", "")
+                .replace("@", "")
+                .replace("/", "")
+                .replace(":", "")
+                .replace("\"", "")
+                .replace("'", "&apos;");
+    }
+
 
     /**
      * Obtiene la extensión de un archivo a partir de su nombre.

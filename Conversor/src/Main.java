@@ -30,7 +30,7 @@ public class Main {
                     break;
 
                 case "3": // Conversión de formato
-                    System.out.println("Función en construcción...");
+                    gestorFichero.convertirFichero(teclado, gestorCarpeta);
                     break;
 
                 case "4": // Salir del programa
@@ -38,7 +38,7 @@ public class Main {
                     break;
 
                 default:
-                    System.out.println("Opción no válida. Por favor, elija una opción del menú.");
+                    System.out.println("\033[91mOpción no válida. Por favor, elija una opción del menú.\033[97m");
             }
         }
 
@@ -55,21 +55,21 @@ public class Main {
      * @param gestorFichero objeto que gestiona las acciones con ficheros.
      */
     private static void mostrarMenu(GestorCarpeta gestorCarpeta, GestorFichero gestorFichero) {
-        System.out.println("\nMenú:");
-        System.out.println("1. Seleccionar carpeta");
-        System.out.println("2. Lectura de fichero");
-        System.out.println("3. Conversión a otro formato (FUNCIÓN EN CONSTRUCCIÓN)");
-        System.out.println("4. Salir");
+        System.out.println("\n\033[34m          MENÚ:\033[97m");
+        System.out.println("\033[92m1.\033[97m Seleccionar carpeta");
+        System.out.println("\033[92m2.\033[97m Lectura de fichero");
+        System.out.println("\033[92m3.\033[97m Conversión a otro formato");
+        System.out.println("\033[92m4.\033[97m Salir");
 
         // Si hay una carpeta seleccionada, la muestra junto con su contenido
         if (gestorCarpeta.obtenerCarpetaSeleccionada() != null) {
-            System.out.println("\nCarpeta seleccionada: " + gestorCarpeta.obtenerCarpetaSeleccionada());
+            System.out.println("\n\033[32mCarpeta seleccionada:\033[37m " + gestorCarpeta.obtenerCarpetaSeleccionada() + "\033[97m");
             gestorCarpeta.listarContenidoCarpeta();
         }
 
         // Si hay un fichero seleccionado, lo muestra
         if (gestorFichero.obtenerFicheroSeleccionado() != null) {
-            System.out.println("Fichero seleccionado: " + gestorFichero.obtenerFicheroSeleccionado());
+            System.out.println("\033[92mFichero seleccionado:\033[37m " + gestorFichero.obtenerFicheroSeleccionado() + "\033[97m");
         }
 
         System.out.print("\nSeleccione una opción: ");
