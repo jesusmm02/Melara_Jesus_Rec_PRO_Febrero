@@ -156,6 +156,7 @@ public class GestorFichero {
 
     /**
      * Método auxiliar que separa objetos JSON dentro de un array.
+     *
      * @param contenido el contenido JSON en formato de cadena.
      * @return lista de objetos JSON
      */
@@ -183,7 +184,8 @@ public class GestorFichero {
 
     /**
      * Método auxiliar que procesa pares clave-valor en un objeto JSON.
-     * @param objeto una cadena que representa un objeto JSON individual.
+     *
+     * @param objeto una cadena que representa un objeto JSON.
      * @return un mapa que almacena las claves y valores del objeto
      */
     private Map<String, String> parsearObjetoJson(String objeto) {
@@ -406,7 +408,7 @@ public class GestorFichero {
 
     
     /**
-     * Escapa caracteres especiales en una cadena para que sea válida en XML.
+     * Sustituye caracteres especiales en una cadena para que sea válida en XML.
      *
      * @param texto Cadena de texto a escapar.
      * @return Cadena de texto con caracteres especiales escapados.
