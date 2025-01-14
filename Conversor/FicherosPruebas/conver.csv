@@ -1,0 +1,2 @@
+package,author,@electron-forge/maker-deb,@electron-forge/maker-zip,start,description,main,@electron-forge/plugin-auto-unpack-natives,version,dependencies,@electron-forge/maker-rpm,license,devDependencies,name,electron,scripts,make,@electron-forge/maker-squirrel
+electron-forge package,jesus,^6.4.2,^6.4.2,electron-forge start,,index.js,^6.4.2,1.0.0,{"electron-squirrel-startup": "^1.0.0"},^6.4.2,ISC,{"@electron-forge/cli": "^6.4.2",videojuego,"^27.0.4"},{"test": "echo \"Error: no test specified\" && exit 1","electron-forge make"},^6.4.2
